@@ -63,16 +63,17 @@ public class LogsCommand implements CommandExecutor {
             return true;
         }
 
-        if (args.length == 2) {
+        int pages;
+        if (args.length < 2) {
+            pages = 0;
+        } else {
             try {
-                Integer.parseInt(args[1]);
+                pages = Integer.parseInt(args[1]) - 1;
             } catch (NumberFormatException exception) {
                 sender.sendMessage(ChatColor.RED + args[1] + " is not a valid number.");
                 return true;
             }
         }
-
-        int pages = Integer.parseInt(args.length == 2 ? args[1] : "1") - 1;
 
         Bukkit.getScheduler().runTaskAsynchronously(VulcanDatabase.getInstance(), () -> {
             List<Log> logs = VulcanDatabase.getInstance().getStorageProvider().getLogs(VulcanDatabase.getInstance().getConfig().getInt("items-per-page", 10), pages * 10, player.getUniqueId());
