@@ -69,6 +69,10 @@ public class MySQLStorageProvider {
         initiateTables();
     }
 
+    public void shutdown() {
+        this.dataSource.close();
+    }
+
     public int count(UUID uuid) {
         int finalCount;
         try (Connection conn = this.dataSource.getConnection();

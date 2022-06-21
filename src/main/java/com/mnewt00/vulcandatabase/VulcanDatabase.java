@@ -67,5 +67,8 @@ public final class VulcanDatabase extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (this.storageProvider != null) {
+            this.storageProvider.shutdown();
+        }
     }
 }
