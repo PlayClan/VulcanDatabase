@@ -67,6 +67,9 @@ dependencies {
 shadowJar {
     relocate "net.kyori", "com.mnewt00.vulcandatabase.shaded.kyoripowered"
     relocate "com.zaxxer.hikari", "com.mnewt00.vulcandatabase.shaded.hikari"
+    relocate "com.google.protobuf", "com.mnewt00.vulcandatabase.shaded.protobuf"
+    relocate "com.mysql", "com.mnewt00.vulcandatabase.shaded.mysql"
+    relocate "org.slf4j", "com.mnewt00.vulcandatabase.shaded.slf4j"
 }
 
 processResources {
