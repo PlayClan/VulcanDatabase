@@ -109,8 +109,8 @@ public class LogsCommand implements CommandExecutor {
             Map<String, Check> treeMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
             VulcanAPI.Factory.getApi().getChecks(Bukkit.getOnlinePlayers().stream().findFirst().orElseThrow(() -> new IllegalArgumentException("No players are online to get checks descriptions."))).forEach(c -> treeMap.put(c.getName() + c.getType(), c));
 
-            for (Log log : logs) {
-                Bukkit.getScheduler().runTask(VulcanDatabase.getInstance(), () -> {
+            Bukkit.getScheduler().runTask(VulcanDatabase.getInstance(), () -> {
+                for (Log log : logs) {
                     long diff = System.currentTimeMillis() - log.getTimestamp();
 
                     // https://stackoverflow.com/a/13018647/11357644
@@ -183,8 +183,8 @@ public class LogsCommand implements CommandExecutor {
                     }
                     (VulcanDatabase.getInstance().getAdventure()).sender(sender).sendMessage(builder.build());
 
-                });
-            }
+                }
+            });
         });
         return true;
     }
