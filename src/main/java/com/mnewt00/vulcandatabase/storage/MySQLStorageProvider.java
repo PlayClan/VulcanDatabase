@@ -28,7 +28,6 @@ import com.google.common.collect.Lists;
 import com.mnewt00.vulcandatabase.Log;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import lombok.Getter;
 import lombok.SneakyThrows;
 
 import java.sql.Connection;
@@ -40,7 +39,6 @@ import java.util.UUID;
 
 public class MySQLStorageProvider {
     private final HikariDataSource dataSource;
-    @Getter private Connection connection;
 
     @SneakyThrows
     public MySQLStorageProvider(String host, String port, String username, String password, String databaseName, String tablePrefix, boolean useSSL) {
@@ -67,14 +65,14 @@ public class MySQLStorageProvider {
         config.addDataSourceProperty("serverTimezone", "UTC");
 
         this.dataSource = new HikariDataSource(config);
-        this.connection = dataSource.getConnection();
 
         initiateTables();
     }
 
     public int count(UUID uuid) {
         int finalCount;
-        try (PreparedStatement preparedStatement = getConnection().prepareStatement("SELECT COUNT(*) FROM vulcandb_logs WHERE uuid = ?")) {
+        try (Connection conn = this.dataSource.getConnection();
+             PreparedStatement preparedStatement = conn.prepareStatement("SELECT COUNT(*) FROM vulcandb_logs WHERE uuid = ?")) {
             preparedStatement.setString(1, uuid.toString());
             ResultSet set = preparedStatement.executeQuery();
             set.next();
@@ -90,7 +88,8 @@ public class MySQLStorageProvider {
     public List<Log> getLogs(int amount, int offset, UUID uuid) {
         List<Log> logs = Lists.newArrayList();
 
-        try (PreparedStatement preparedStatement = getConnection().prepareStatement("SELECT uuid,name,timestamp,`server`,information,`check`,check_type,violations,version,ping,tps FROM vulcandb_logs WHERE `uuid` = ? ORDER BY timestamp DESC LIMIT ? OFFSET ?;")) {
+        try (Connection conn = this.dataSource.getConnection();
+             PreparedStatement preparedStatement = conn.prepareStatement("SELECT uuid,name,timestamp,`server`,information,`check`,check_type,violations,version,ping,tps FROM vulcandb_logs WHERE `uuid` = ? ORDER BY timestamp DESC LIMIT ? OFFSET ?;")) {
             preparedStatement.setString(1, uuid.toString());
             preparedStatement.setInt(2, amount);
             preparedStatement.setInt(3, offset);
@@ -119,7 +118,8 @@ public class MySQLStorageProvider {
     }
 
     public void addLog(Log log, UUID uuid) {
-        try (PreparedStatement preparedStatement = getConnection().prepareStatement("INSERT INTO vulcandb_logs" +
+        try (Connection conn = this.dataSource.getConnection();
+             PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO vulcandb_logs" +
                 " (uuid, name, timestamp, `server`, information, `check`, check_type, violations, version, ping, tps)" +
                 " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")) {
             preparedStatement.setString(1, log.getUuid().toString());
@@ -141,7 +141,8 @@ public class MySQLStorageProvider {
     }
 
     public void initiateTables() {
-        try (PreparedStatement preparedStatement = getConnection().prepareStatement(
+        try (Connection conn = this.dataSource.getConnection();
+             PreparedStatement preparedStatement = conn.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS vulcandb_logs (" +
                         "id INTEGER PRIMARY KEY AUTO_INCREMENT," +
                         "uuid VARCHAR(36) NOT NULL," +
