@@ -30,13 +30,8 @@ jobs:
         run: |
           rm -f ~/.gradle/caches/modules-2/modules-2.lock
           rm -f ~/.gradle/caches/modules-2/gc.properties
-      - id: get-id
-        uses: actions/github-script@0.9.0
-        with:
-          script: return (context.payload.after.substring(0,7))
-          result-encoding: string
       - uses: actions/upload-artifact@v2
         with:
-          name: Artifacts-${{ steps.get-id.outputs.result }}_(Java${{ matrix.java }})
+          name: Artifacts-(Java${{ matrix.java }})
           path: |
             jars/*.jar
